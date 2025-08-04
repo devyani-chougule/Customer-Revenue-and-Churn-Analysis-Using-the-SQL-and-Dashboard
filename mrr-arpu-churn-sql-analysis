@@ -1,0 +1,43 @@
+/* 
+Monthly Recurring Revenue (MRR)
+   - Calculates total revenue generated each month from all transactions.
+*/
+SELECT 
+    DATE_FORMAT(transaction_date, '%Y-%m') AS month,
+    SUM(amount) AS total_monthly_revenue
+FROM
+    customer.transactions
+GROUP BY 
+    DATE_FORMAT(transaction_date, '%Y-%m')
+ORDER BY 
+    month;
+/* 
+ Average Revenue Per User (ARPU)
+   - Calculates ARPU = Total Revenue / Total Active Customers each month.
+*/
+SELECT 
+    DATE_FORMAT(transaction_date, '%Y-%m') AS month,
+    SUM(amount) AS total_revenue,
+    COUNT(DISTINCT customer_id) AS total_customers,
+    ROUND(SUM(amount) / COUNT(DISTINCT customer_id), 2) AS ARPU
+FROM 
+    customer.transactions
+GROUP BY 
+    DATE_FORMAT(transaction_date, '%Y-%m') 
+ORDER BY 
+    month;
+/* 
+ Monthly Churned Customers
+   - Counts how many customers churned (ended subscriptions) in each month.
+*/
+SELECT 
+    DATE_FORMAT(end_date, '%Y-%m') AS churn_month,
+    COUNT(DISTINCT customer_id) AS churned_customers
+FROM 
+    customer.subscriptions
+WHERE 
+    end_date IS NOT NULL
+GROUP BY 
+    churn_month
+ORDER BY 
+    churn_month;

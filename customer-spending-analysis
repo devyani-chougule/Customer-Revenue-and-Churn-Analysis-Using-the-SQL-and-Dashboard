@@ -1,0 +1,42 @@
+--- 1. Count total number of customers per country
+SELECT 
+    country,
+    COUNT(*) AS total_customers
+FROM 
+    customer.customers
+GROUP BY 
+    country
+ORDER BY 
+    total_customers DESC;
+--- 2. Count total number of customers per customer segment
+SELECT 
+    customer_segment,
+    COUNT(*) AS total_customers 
+FROM 
+    customer.customers
+GROUP BY 
+    customer_segment;
+--- 3. Categorize customers into spending groups based on total amount spent
+SELECT 
+    c.customer_id,
+    c.country,
+    c.customer_segment,
+    SUM(t.amount) AS total_spent,
+
+    --- Categorize customers by total spending
+    CASE 
+        WHEN SUM(t.amount) >= 1000 THEN 'High'
+        WHEN SUM(t.amount) BETWEEN 500 AND 999 THEN 'Medium'
+        ELSE 'Low'
+    END AS spending_group
+
+FROM 
+    customer.customers c
+JOIN 
+    customer.transactions t 
+    ON c.customer_id = t.customer_id
+
+GROUP BY  
+    c.customer_id,
+    c.country,
+    c.customer_segment;

@@ -1,0 +1,44 @@
+/* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 1. Identify Customer Cohorts
+   - Assigns each customer to a cohort based on their signup month.
+*/--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SELECT 
+    customer_id,
+    DATE_FORMAT(signup_date, '%Y-%m') AS cohort_month
+FROM 
+    customer.customers;
+/* --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 2. Track Customer Lifespan
+   - Calculates the last active month for each customer and their total lifespan (in months).
+   - Uses CURDATE() if cancel_date is NULL.
+*/--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SELECT 
+    customer_id,
+    DATE_FORMAT(signup_date, '%y-%m') AS cohort_month,
+    DATE_FORMAT(IFNULL(cancel_date, CURDATE()), '%y-%m') AS last_active_month,
+    TIMESTAMPDIFF(
+        MONTH,
+        signup_date,
+        IFNULL(cancel_date, CURDATE())
+    ) AS lifespan_month
+FROM 
+    customer.customers;
+/* --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 3. Count Customers by Cohort and Lifespan
+   - Aggregates customer counts by cohort (signup month) and how long they remained active.
+   - This is essential for a cohort retention heatmap visualization.
+*/--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SELECT 
+    DATE_FORMAT(signup_date, '%y-%m') AS cohort_month,
+    TIMESTAMPDIFF(
+        MONTH, 
+        signup_date, 
+        IFNULL(cancel_date, CURDATE())
+    ) AS lifespan_month,
+    COUNT(*) AS customer_count
+FROM 
+    customer.customers
+GROUP BY 
+    cohort_month, lifespan_month
+ORDER BY 
+    cohort_month, lifespan_month;
